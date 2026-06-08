@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>CGPA Calculator — CollegeTools</title>
+  <meta name="description"
+    content="Calculate your Cumulative Grade Point Average (CGPA) from your semester SGPAs in seconds." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+  <div class="app">
+    <div id="site-nav"></div>
+
+    <section class="subhero">
+      <div class="mesh"></div>
+      <div class="container subhero-inner">
+        <span class="pill" id="pagePill"></span>
+        <h1 style="margin-top: 1rem;">CGPA <span class="text-gradient">Calculator</span></h1>
+        <p>Enter the SGPA you scored in each semester. We'll average them into your overall CGPA.</p>
+      </div>
+    </section>
+
+    <main class="container container-lg main space-y">
+      <!-- How to use -->
+      <div class="card how shadow-soft">
+        <h2><span id="howIcon"></span> How to Use</h2>
+        <p class="mt-4 muted">Enter the SGPA obtained in each semester.</p>
+        <p class="mt-4 text-sm font-medium">Example:</p>
+        <ul class="mt-2 text-sm muted">
+          <li>Semester 1 — 8.43</li>
+          <li>Semester 2 — 8.70</li>
+          <li>Semester 3 — 8.51</li>
+        </ul>
+      </div>
+
+      <!-- Calculator -->
+      <div class="card shadow-elegant">
+        <div class="calc-head">
+          <h2>Calculator</h2>
+          <p class="calc-meta" id="calcMeta">3 semesters</p>
+        </div>
+        <div class="row-header cgpa-cols">
+          <span>Semester Name</span>
+          <span>SGPA</span>
+          <span></span>
+        </div>
+        <div class="rows-wrap" id="rows"></div>
+        <div class="calc-actions">
+          <button class="btn btn-outline" id="addBtn"></button>
+          <button class="btn btn-hero" id="calcBtn"></button>
+          <button class="btn btn-ghost" id="resetBtn"></button>
+        </div>
+      </div>
+
+      <!-- Formula -->
+      <div class="card formula bg-gradient-card shadow-soft">
+        <h2>CGPA Formula</h2>
+        <div class="grid">
+          <div class="item">CGPA = Average of all Semester SGPAs</div>
+          <div class="item">Example: (8.43 + 8.70 + 8.51) ÷ 3 = 8.55</div>
+        </div>
+      </div>
+
+      <!-- Result -->
+      <div class="card result-card shadow-elegant" id="resultCard" style="display:none;">
+        <div class="mesh"></div>
+        <div class="result-grid cgpa">
+          <div class="score" id="scoreWrap"></div>
+          <div>
+            <p class="eyebrow-sm">Your Result</p>
+            <h3>CGPA = <span class="text-gradient" id="cgpaVal">0.00</span> / 10</h3>
+            <p class="muted mt-2" id="basedOn">Based on 0 semesters.</p>
+            <div class="stats" id="stats"></div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <div id="site-footer"></div>
+  </div>
+
+  <script src="partials.js"></script>
+  <script>
+    mountLayout('cgpa-calculator.html');
+
+    document.getElementById('pagePill').innerHTML =
+      `<span style="width:14px;height:14px;display:inline-flex;">${ICONS.barChart3}</span> Cumulative GPA`;
+    document.getElementById('howIcon').innerHTML = `<span style="width:20px;height:20px;display:inline-flex;color:var(--primary);">${ICONS.bookOpen}</span>`;
+    document.getElementById('addBtn').innerHTML = `<span style="width:16px;height:16px;display:inline-flex;">${ICONS.plus}</span> Add Semester`;
+    document.getElementById('calcBtn').innerHTML = `<span style="width:16px;height:16px;display:inline-flex;">${ICONS.barChart3}</span> Calculate CGPA`;
+    document.getElementById('resetBtn').innerHTML = `<span style="width:16px;height:16px;display:inline-flex;">${ICONS.refresh}</span> Reset`;
+
+    let sems = [newSem(1), newSem(2), newSem(3)];
+    let showResult = false;
+    function newSem(i) { return { id: uid(), name: `Semester ${i}`, sgpa: '' }; }
+    function escapeAttr(s) { return String(s).replace(/"/g, '&quot;'); }
+
+    function render() {
+      const wrap = document.getElementById('rows');
+      wrap.innerHTML = sems.map(s => `
+        <div class="row cgpa-cols" data-id="${s.id}">
+          <div><label class="label field-label">Semester Name</label>
+            <input class="input" data-k="name" value="${escapeAttr(s.name)}" placeholder="Semester"/></div>
+          <div><label class="label field-label">SGPA (0–10)</label>
+            <input class="input" data-k="sgpa" type="number" inputmode="decimal" min="0" max="10" step="0.01" value="${escapeAttr(s.sgpa)}" placeholder="0.00"/></div>
+          <button class="btn btn-ghost btn-icon remove-btn" aria-label="Remove" ${sems.length <= 1 ? 'disabled' : ''}>
+            <span style="width:16px;height:16px;display:inline-flex;">${ICONS.trash}</span>
+          </button>
+        </div>
+      `).join('');
+      document.getElementById('calcMeta').textContent = `${sems.length} semester${sems.length !== 1 ? 's' : ''}`;
+      wrap.querySelectorAll('.row').forEach(row => {
+        const id = row.dataset.id;
+        row.querySelectorAll('input').forEach(inp => {
+          inp.addEventListener('input', e => {
+            const s = sems.find(x => x.id === id);
+            s[inp.dataset.k] = e.target.value;
+            if (showResult) compute();
+          });
+        });
+        row.querySelector('.remove-btn').addEventListener('click', () => {
+          if (sems.length <= 1) return;
+          sems = sems.filter(x => x.id !== id);
+          render();
+          if (showResult) compute();
+        });
+      });
+    }
+
+    function compute() {
+      let total = 0, count = 0;
+      for (const s of sems) {
+        const v = parseFloat(s.sgpa);
+        if (!isNaN(v) && v >= 0 && v <= 10) { total += v; count++; }
+      }
+      const cgpa = count > 0 ? total / count : 0;
+      showResult = true;
+      document.getElementById('resultCard').style.display = 'block';
+      if (!document.getElementById('scoreCirc')) {
+        document.getElementById('scoreWrap').innerHTML = circularScoreHTML('scoreCirc');
+      }
+      setCircularScore('scoreCirc', cgpa, 'CGPA');
+      document.getElementById('cgpaVal').textContent = cgpa.toFixed(2);
+      document.getElementById('basedOn').textContent = `Based on ${count} semester${count !== 1 ? 's' : ''}.`;
+      document.getElementById('stats').innerHTML = [
+        ['Semesters', count],
+        ['Average CGPA', cgpa.toFixed(2)],
+      ].map(([l, v]) => `<div class="stat"><p class="l">${l}</p><p class="v">${v}</p></div>`).join('');
+    }
+
+    document.getElementById('addBtn').addEventListener('click', () => { sems.push(newSem(sems.length + 1)); render(); });
+    document.getElementById('calcBtn').addEventListener('click', compute);
+    document.getElementById('resetBtn').addEventListener('click', () => {
+      sems = [newSem(1), newSem(2), newSem(3)];
+      showResult = false;
+      document.getElementById('resultCard').style.display = 'none';
+      render();
+    });
+
+    render();
+  </script>
+</body>
+
+</html>

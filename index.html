@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>CollegeTools — SGPA & CGPA Calculator for Students</title>
+  <meta name="description"
+    content="Calculate your SGPA and CGPA accurately using credits and grade points in seconds." />
+  <meta property="og:title" content="CollegeTools — SGPA & CGPA Calculator" />
+  <meta property="og:description" content="Free, fast and accurate calculators for any university grading system." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+  <div class="app">
+    <div id="site-nav"></div>
+
+    <!-- Hero -->
+    <section class="hero">
+      <div class="mesh"></div>
+      <div class="container hero-inner text-center">
+        <span class="pill" id="heroPill"></span>
+        <h1 style="margin-top:1.5rem;"><span class="text-gradient">CollegeTools</span></h1>
+        <p class="lead">Calculate your SGPA and CGPA accurately using credits and grade points — in seconds.</p>
+        <div class="cta-row">
+          <a href="sgpa-calculator.html" class="btn btn-hero btn-xl">Calculate SGPA <span id="ctaArrow"></span></a>
+          <a href="cgpa-calculator.html" class="btn btn-outline-hero btn-xl">Calculate CGPA</a>
+        </div>
+        <div class="check-row" id="checkRow"></div>
+      </div>
+    </section>
+
+    <!-- Features -->
+    <section class="section">
+      <div class="container">
+        <div class="section-head">
+          <p class="eyebrow">Features</p>
+          <h2>Everything you need to track your academics</h2>
+          <p>Beautiful, accurate calculators built for real student workflows.</p>
+        </div>
+        <div class="feature-grid" id="featureGrid"></div>
+      </div>
+    </section>
+
+    <!-- Why -->
+    <section class="section section-secondary">
+      <div class="container container-sm text-center">
+        <p class="eyebrow">Why CollegeTools</p>
+        <h2 style="margin-top:0.75rem; font-size: clamp(1.75rem, 4vw, 2.25rem);">Stop wrestling with spreadsheets</h2>
+        <p style="margin-top:1.5rem; font-size: 1.125rem; color: var(--muted-foreground); line-height: 1.7;">
+          CollegeTools helps students calculate SGPA and CGPA without manual spreadsheets or complicated calculations.
+          Just enter your subjects, credits and grade points — we'll do the math, accurately, every time.
+          Designed to work with <span style="color: var(--foreground); font-weight: 500;">any university's grading
+            system</span>.
+        </p>
+      </div>
+    </section>
+
+    <!-- How it works -->
+    <section class="section">
+      <div class="container">
+        <div class="section-head">
+          <p class="eyebrow">How it works</p>
+          <h2>Three steps to your result</h2>
+        </div>
+        <div class="steps-grid" id="stepsGrid"></div>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section id="faq" class="section section-secondary" style="scroll-margin-top: 5rem;">
+      <div class="container" style="max-width: 768px;">
+        <div class="section-head">
+          <p class="eyebrow">FAQ</p>
+          <h2>Frequently asked questions</h2>
+        </div>
+        <div class="accordion" id="faqList"></div>
+      </div>
+    </section>
+
+    <div class="flex-1"></div>
+    <div id="site-footer"></div>
+  </div>
+
+  <script src="partials.js"></script>
+  <script>
+    mountLayout('index.html');
+
+    document.getElementById('heroPill').innerHTML =
+      `<span style="width:14px;height:14px;display:inline-flex;">${ICONS.sparkles}</span> Trusted by students worldwide`;
+    document.getElementById('ctaArrow').innerHTML =
+      `<span style="width:16px;height:16px;display:inline-flex;">${ICONS.arrowRight}</span>`;
+
+    document.getElementById('checkRow').innerHTML = ['100% free', 'No sign-up', 'Works offline']
+      .map(t => `<span><span style="width:16px;height:16px;display:inline-flex;">${ICONS.check}</span> ${t}</span>`).join('');
+
+    const features = [
+      { icon: 'calculator', title: 'SGPA Calculator', desc: 'Compute Semester GPA using subject credits and grade points with surgical precision.' },
+      { icon: 'barChart3', title: 'CGPA Calculator', desc: 'Average your semester SGPAs to find your cumulative grade point average instantly.' },
+      { icon: 'graduationCap', title: 'University Independent', desc: 'Works with any grading scale — enter your own grade points based on your university.' },
+      { icon: 'zap', title: 'Fast & Accurate', desc: 'Real-time calculations in your browser. No sign-ups, no waiting, no spreadsheets.' },
+    ];
+    document.getElementById('featureGrid').innerHTML = features.map(f => `
+      <div class="card feature-card">
+        <div class="feature-icon"><span style="width:24px;height:24px;display:inline-flex;">${ICONS[f.icon]}</span></div>
+        <h3>${f.title}</h3>
+        <p>${f.desc}</p>
+      </div>
+    `).join('');
+
+    const steps = [
+      { n: '01', t: 'Choose your calculator', d: 'Pick SGPA for a single semester or CGPA for your overall average.' },
+      { n: '02', t: 'Enter academic info', d: 'Add your subjects with credits and grade points, or your semester SGPAs.' },
+      { n: '03', t: 'Get instant results', d: 'See your score, total credits and a clean breakdown — in real time.' },
+    ];
+    document.getElementById('stepsGrid').innerHTML = steps.map((s, i) => `
+      <div style="position:relative;">
+        <div class="card step-card">
+          <span class="step-num text-gradient">${s.n}</span>
+          <h3>${s.t}</h3>
+          <p>${s.d}</p>
+        </div>
+      </div>
+    `).join('');
+
+    const faqs = [
+      { q: 'What is SGPA?', a: 'SGPA (Semester Grade Point Average) measures your academic performance in a single semester. It is calculated using the credits and grade points of all subjects you took that semester.' },
+      { q: 'What is CGPA?', a: 'CGPA (Cumulative Grade Point Average) is the overall average of your SGPAs across all completed semesters. It represents your total academic performance throughout your course.' },
+      { q: 'How is SGPA calculated?', a: "SGPA = (Sum of Credit × Grade Point for each subject) ÷ (Sum of all Subject Credits). Each subject's credit point is its credit multiplied by its grade point." },
+      { q: 'How is CGPA calculated?', a: 'On this site, CGPA is computed as the simple average of all your semester SGPAs: (SGPA1 + SGPA2 + ... + SGPAn) ÷ n.' },
+      { q: 'Does this calculator work for all universities?', a: "Yes. We don't lock you to one grading scale — you enter your grade points directly, so it works with any institution's grading policy." },
+      { q: 'Why do different universities have different grading systems?', a: "Universities set their own academic policies, mark-to-grade mappings and credit weights. That's why two students with the same marks can end up with different grade points at different institutions." },
+    ];
+    document.getElementById('faqList').innerHTML = faqs.map((f, i) => `
+      <div class="acc-item" data-i="${i}">
+        <button class="acc-trigger" type="button">
+          <span>${f.q}</span>
+          <span style="width:18px;height:18px;display:inline-flex;">${ICONS.chevron}</span>
+        </button>
+        <div class="acc-panel">${f.a}</div>
+      </div>
+    `).join('');
+    document.querySelectorAll('.acc-item').forEach(item => {
+      item.querySelector('.acc-trigger').addEventListener('click', () => {
+        const wasOpen = item.classList.contains('open');
+        document.querySelectorAll('.acc-item').forEach(x => x.classList.remove('open'));
+        if (!wasOpen) item.classList.add('open');
+      });
+    });
+  </script>
+</body>
+
+</html>

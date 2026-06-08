@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>SGPA Calculator — CollegeTools</title>
+  <meta name="description"
+    content="Calculate your Semester Grade Point Average (SGPA) using credits and grade points. Works with any university." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+  <div class="app">
+    <div id="site-nav"></div>
+
+    <section class="subhero">
+      <div class="mesh"></div>
+      <div class="container subhero-inner">
+        <span class="pill" id="pagePill"></span>
+        <h1 style="margin-top: 1rem;">SGPA <span class="text-gradient">Calculator</span></h1>
+        <p>Enter your subjects with credits and grade points. We calculate your semester GPA instantly.</p>
+      </div>
+    </section>
+
+    <main class="container container-lg main space-y">
+      <!-- How to use -->
+      <div class="card how shadow-soft">
+        <h2><span id="howIcon"></span> How to Use</h2>
+        <div class="steps">
+          <div>
+            <p class="eyebrow-sm">Step 1</p>
+            <p class="mt-2 font-medium">Collect the following details for all subjects:</p>
+            <ul class="mt-2">
+              <li>Subject Name</li>
+              <li>Subject Credit</li>
+              <li>Grade Point (Pointer)</li>
+            </ul>
+          </div>
+          <div>
+            <p class="eyebrow-sm">Step 2</p>
+            <p class="mt-2 font-medium">Find Your Grade Point</p>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Marks Range</th>
+                    <th>Grade</th>
+                    <th>Grade Point</th>
+                  </tr>
+                </thead>
+                <tbody id="gradeTable"></tbody>
+              </table>
+            </div>
+            <div class="info">
+              <span id="infoIcon"></span>
+              <p><strong>Important:</strong> Different colleges and universities may follow different grading systems.
+                The table above is only an example. If your institution uses a different grading policy, simply enter
+                grade points according to your university's grading rules while calculating SGPA.</p>
+            </div>
+          </div>
+          <div>
+            <p class="eyebrow-sm">Step 3</p>
+            <p class="mt-2 font-medium">Add all subjects in the calculator.</p>
+            <p class="mt-2 text-sm muted">Example:</p>
+            <ul class="mt-2 text-sm muted">
+              <li>Engineering Mathematics — Credit 4 — Grade Point 9</li>
+              <li>Physics — Credit 4 — Grade Point 10</li>
+              <li>English — Credit 3 — Grade Point 8</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Formula -->
+      <div class="card formula bg-gradient-card shadow-soft">
+        <h2>SGPA Formula</h2>
+        <div class="grid">
+          <div class="item">Credit Point = Credit × Grade Point</div>
+          <div class="item">Total Credit Points = Sum of all Credit Points</div>
+          <div class="item">Total Credits = Sum of all Subject Credits</div>
+          <div class="item">SGPA = Total Credit Points ÷ Total Credits</div>
+        </div>
+      </div>
+
+      <!-- Calculator -->
+      <div class="card shadow-elegant">
+        <div class="calc-head">
+          <h2>Calculator</h2>
+          <p class="calc-meta" id="calcMeta">3 subjects</p>
+        </div>
+        <div class="row-header sgpa-cols">
+          <span>Subject Name</span>
+          <span>Credits</span>
+          <span>Grade Point</span>
+          <span></span>
+        </div>
+        <div class="rows-wrap" id="rows"></div>
+        <div class="calc-actions">
+          <button class="btn btn-outline" id="addBtn"></button>
+          <button class="btn btn-hero" id="calcBtn"></button>
+          <button class="btn btn-ghost" id="resetBtn"></button>
+        </div>
+      </div>
+
+      <!-- Result -->
+      <div class="card result-card shadow-elegant" id="resultCard" style="display:none;">
+        <div class="mesh"></div>
+        <div class="result-grid">
+          <div class="score" id="scoreWrap"></div>
+          <div>
+            <p class="eyebrow-sm">Your Result</p>
+            <h3>SGPA = <span class="text-gradient" id="sgpaVal">0.00</span> / 10</h3>
+            <p class="muted mt-2" id="basedOn">Based on 0 valid subjects.</p>
+            <div class="stats" id="stats"></div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <div id="site-footer"></div>
+  </div>
+
+  <script src="partials.js"></script>
+  <script>
+    mountLayout('sgpa-calculator.html');
+
+    document.getElementById('pagePill').innerHTML =
+      `<span style="width:14px;height:14px;display:inline-flex;">${ICONS.sigma}</span> Semester GPA`;
+    document.getElementById('howIcon').innerHTML = `<span style="width:20px;height:20px;display:inline-flex;color:var(--primary);">${ICONS.bookOpen}</span>`;
+    document.getElementById('infoIcon').innerHTML = `<span style="width:20px;height:20px;display:inline-flex;">${ICONS.info}</span>`;
+    document.getElementById('addBtn').innerHTML = `<span style="width:16px;height:16px;display:inline-flex;">${ICONS.plus}</span> Add Subject`;
+    document.getElementById('calcBtn').innerHTML = `<span style="width:16px;height:16px;display:inline-flex;">${ICONS.sigma}</span> Calculate SGPA`;
+    document.getElementById('resetBtn').innerHTML = `<span style="width:16px;height:16px;display:inline-flex;">${ICONS.refresh}</span> Reset`;
+
+    const grading = [
+      ['91–100', 'O (Outstanding)', 10], ['81–90', 'A+ (Excellent)', 9], ['71–80', 'A (Very Good)', 8],
+      ['61–70', 'B+ (Good)', 7], ['51–60', 'B (Above Average)', 6], ['41–50', 'C (Average)', 5],
+      ['33–40', 'P (Pass)', 4], ['Below 33', 'F (Fail)', 0],
+    ];
+    document.getElementById('gradeTable').innerHTML = grading.map(g =>
+      `<tr><td>${g[0]}</td><td>${g[1]}</td><td class="point">${g[2]}</td></tr>`).join('');
+
+    let subjects = [newSubject(), newSubject(), newSubject()];
+    let showResult = false;
+
+    function newSubject() { return { id: uid(), name: '', credits: '', grade: '' }; }
+
+    function render() {
+      const wrap = document.getElementById('rows');
+      wrap.innerHTML = subjects.map((s, i) => `
+        <div class="row sgpa-cols" data-id="${s.id}">
+          <div><label class="label field-label">Subject Name</label>
+            <input class="input" data-k="name" value="${escapeAttr(s.name)}" placeholder="Subject ${i + 1}"/></div>
+          <div><label class="label field-label">Credits</label>
+            <input class="input" data-k="credits" type="number" inputmode="decimal" min="0" value="${escapeAttr(s.credits)}" placeholder="0"/></div>
+          <div><label class="label field-label">Grade Point (0–10)</label>
+            <input class="input" data-k="grade" type="number" inputmode="decimal" min="0" max="10" step="0.01" value="${escapeAttr(s.grade)}" placeholder="0"/></div>
+          <button class="btn btn-ghost btn-icon remove-btn" aria-label="Remove" ${subjects.length <= 1 ? 'disabled' : ''}>
+            <span style="width:16px;height:16px;display:inline-flex;">${ICONS.trash}</span>
+          </button>
+        </div>
+      `).join('');
+      document.getElementById('calcMeta').textContent = `${subjects.length} subject${subjects.length !== 1 ? 's' : ''}`;
+      wrap.querySelectorAll('.row').forEach(row => {
+        const id = row.dataset.id;
+        row.querySelectorAll('input').forEach(inp => {
+          inp.addEventListener('input', e => {
+            const s = subjects.find(x => x.id === id);
+            s[inp.dataset.k] = e.target.value;
+            if (showResult) compute();
+          });
+        });
+        row.querySelector('.remove-btn').addEventListener('click', () => {
+          if (subjects.length <= 1) return;
+          subjects = subjects.filter(x => x.id !== id);
+          render();
+          if (showResult) compute();
+        });
+      });
+    }
+
+    function escapeAttr(s) { return String(s).replace(/"/g, '&quot;'); }
+
+    function compute() {
+      let totalCredits = 0, totalPoints = 0, count = 0;
+      for (const s of subjects) {
+        const c = parseFloat(s.credits), g = parseFloat(s.grade);
+        if (!isNaN(c) && !isNaN(g) && c > 0 && g >= 0 && g <= 10) { totalCredits += c; totalPoints += c * g; count++; }
+      }
+      const sgpa = totalCredits > 0 ? totalPoints / totalCredits : 0;
+      showResult = true;
+      const card = document.getElementById('resultCard');
+      card.style.display = 'block';
+      if (!document.getElementById('scoreCirc')) {
+        document.getElementById('scoreWrap').innerHTML = circularScoreHTML('scoreCirc');
+      }
+      setCircularScore('scoreCirc', sgpa, 'SGPA');
+      document.getElementById('sgpaVal').textContent = sgpa.toFixed(2);
+      document.getElementById('basedOn').textContent = `Based on ${count} valid subject${count !== 1 ? 's' : ''}.`;
+      document.getElementById('stats').innerHTML = [
+        ['Total Subjects', count],
+        ['Total Credits', totalCredits],
+        ['Credit Points', totalPoints.toFixed(2)],
+      ].map(([l, v]) => `<div class="stat"><p class="l">${l}</p><p class="v">${v}</p></div>`).join('');
+    }
+
+    document.getElementById('addBtn').addEventListener('click', () => { subjects.push(newSubject()); render(); });
+    document.getElementById('calcBtn').addEventListener('click', compute);
+    document.getElementById('resetBtn').addEventListener('click', () => {
+      subjects = [newSubject(), newSubject(), newSubject()];
+      showResult = false;
+      document.getElementById('resultCard').style.display = 'none';
+      render();
+    });
+
+    render();
+  </script>
+</body>
+
+</html>
